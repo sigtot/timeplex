@@ -1,0 +1,30 @@
+{
+  "name": "timeplex",
+  "version": "0.0.1",
+  "description": "A time game.",
+  "main": "index.js",
+  "scripts": {
+    "type-check": "tsc --noEmit",
+    "type-check:watch": "npm run type-check -- --watch",
+    "build": "npm run build:types && npm run build:js",
+    "build:types": "tsc --emitDeclarationOnly",
+    "build:js": "babel src --out-dir js --extensions \".ts,.tsx\" --source-maps inline",
+    "bundle": "webpack --mode production",
+    "start": "webpack-dev-server --content-base ./dist --hot --inline --colors --port 3000 --open"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.4.0",
+    "@babel/plugin-proposal-class-properties": "^7.4.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.4.0",
+    "@babel/preset-env": "^7.4.1",
+    "@babel/preset-typescript": "^7.3.2",
+    "babel-loader": "^8.0.4",
+    "typescript": "^3.3.3",
+    "webpack": "^4.33.0",
+    "webpack-cli": "^3.3.2",
+    "webpack-dev-server": "^3.6.0"
+  }
+}
