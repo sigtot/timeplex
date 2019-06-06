@@ -1,39 +1,46 @@
-import {Entity, MovableEntity, Player} from "./engine";
+import {performCollision, GroupedEntityList} from "./engine";
+import {DRAW_BOUNDING_RECT, TICK_INTERVAL} from "./config";
 
 export class CanvasAnimation {
   private readonly ctx: CanvasRenderingContext2D;
-  private movableEntities: MovableEntity[] = [];
-  private entities: Entity[] = [];
+  private entityList: GroupedEntityList = new GroupedEntityList();
 
   constructor(private readonly canvas: HTMLCanvasElement) {
     this.ctx = this.canvas.getContext('2d')!!;
 
-    let player1: Player = new Player(100, 100);
-    let player2: Player = new Player(200, 100);
-
-    this.movableEntities.push(player1);
-    this.movableEntities.push(player2);
-
-    this.entities.push(player1);
-    this.entities.push(player2);
-
-    window.setInterval(() => this.tick(), 16);
+    window.setInterval(() => this.tick(), TICK_INTERVAL);
     window.requestAnimationFrame(() => this.draw());
   }
 
   tick() {
-    console.log(this.movableEntities.length);
-    this.movableEntities.forEach( entity => {
-      entity.nextState();
-      console.log(entity);
-    });
+    for (let i = 0; i < this.entityList.mutableEntityCount(); i++) {
+      this.entityList.mutableEntity(i).incrementState();
+    }
+
+    // Check for and perform collisions
+    for (let i = 0; i < this.entityList.movableEntityCount(); i++) {
+      for (let j = 1; j < this.entityList.entityCount(); j++) {
+        let movableEntity = this.entityList.movableEntity(i);
+        let otherEntity = this.entityList.entity(j);
+        if (movableEntity.collidingWidth(otherEntity)) {
+          performCollision(movableEntity, otherEntity)
+        }
+      }
+    }
   }
 
   draw() {
     this.drawBg();
-    this.entities.forEach( entity => {
-      entity.draw(this.ctx);
-    });
+    for (let i = 0; i < this.entityList.entityCount(); i++) {
+      this.entityList.entity(i).draw(this.ctx);
+    }
+    if (DRAW_BOUNDING_RECT) {
+      for (let i = 0; i < this.entityList.entityCount(); i++) {
+        let bRect = this.entityList.entity(i).boundingRect();
+        this.ctx.strokeStyle = "#ff0000";
+        this.ctx.strokeRect(bRect.x1, bRect.y1, bRect.x2 - bRect.x1, bRect.y2 - bRect.y1);
+      }
+    }
     window.requestAnimationFrame(() => this.draw());
   }
 
