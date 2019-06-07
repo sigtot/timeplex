@@ -1,6 +1,19 @@
 export const PLAYER_SIZE: number = 30;
 export const PLAYER_MASS: number = 1;
-export const GRAVITATIONAL_CONSTANT: number = 0.2;
+export const GRAVITATIONAL_CONSTANT: number = 0.3;
 export const COLLISION_THRESH: number = 20;
-export const DRAW_BOUNDING_RECT: boolean = true;
+export const DRAW_BOUNDING_RECT: boolean = false;
 export const TICK_INTERVAL: number = 8;
+export const MAX_RUN_SPEED = 6;
+export const RUN_ACC = 0.2;
+export const JUMP_SPEED = 10;
+
+export const LEFT_KEY_CODE: string = "ArrowLeft";
+export const UP_KEY_CODE: string = "ArrowUp";
+export const RIGHT_KEY_CODE: string = "ArrowRight";
+export const DOWN_KEY_CODE: string = "ArrowDown";
+export const SPACE_KEY_CODE: string = "Space";
+export const H_KEY_CODE: string = "KeyH";
+export const J_KEY_CODE: string = "KeyJ";
+export const K_KEY_CODE: string = "KeyK";
+export const L_KEY_CODE: string = "KeyL";

@@ -7,6 +7,11 @@ class Rectangle {
 export abstract class Entity {
   posX: number = 0;
   posY: number = 0;
+  velX: number = 0;
+  velY: number = 0;
+  accX: number = 0;
+  accY: number = 0;
+
   height: number = 0;
   width: number = 0;
 
@@ -18,44 +23,70 @@ export abstract class Entity {
   collidingWidth(subject: Entity): boolean {
     let rect1 = this.boundingRect();
     let rect2 = subject.boundingRect();
-    return (rect1.x1 < rect2.x2 && rect1.x2 > rect2.x1 && rect1.y1 < rect2.y2 && rect1.y2 > rect2.y1);
+    return (rect1.x1 <= rect2.x2 && rect1.x2 >= rect2.x1 && rect1.y1 <= rect2.y2 && rect1.y2 >= rect2.y1);
   }
 
-  collisionIsBottom(subject: Entity): boolean {
+  collidingFromBottomWith(subject: Entity): boolean {
     return subject.boundingRect().y2 - this.boundingRect().y1 < COLLISION_THRESH;
   }
 
-  collisionIsTop(subject: Entity): boolean {
+  collidingFromTopWith(subject: Entity): boolean {
     return this.boundingRect().y2 - subject.boundingRect().y1 < COLLISION_THRESH;
   }
 
-  collisionIsRight(subject: Entity): boolean {
+  collidingFromRightWith(subject: Entity): boolean {
     return subject.boundingRect().x2 - this.boundingRect().x1 < COLLISION_THRESH;
   }
 
-  collisionIsLeft(subject: Entity): boolean {
+  collidingFromLeftWith(subject: Entity): boolean {
     return this.boundingRect().x2 - subject.boundingRect().x1 < COLLISION_THRESH;
   }
+
+  hitFromBelow () {}
+  hitFromTop () {}
+  hitFromLeft () {}
+  hitFromRight () {}
+  resetContactSurfaces () {}
 }
 
 export abstract class MutableEntity extends Entity {
+  inContactFromBelow: boolean = false;
+  inContactFromTop: boolean = false;
+  inContactFromLeft: boolean = false;
+  inContactFromRight: boolean = false;
+
   abstract incrementState(): void;
+  hitFromBelow() {
+    this.inContactFromBelow = true;
+  }
+  hitFromTop() {
+    this.inContactFromTop = true;
+  }
+  hitFromLeft() {
+    this.inContactFromLeft = true;
+  }
+  hitFromRight() {
+    this.inContactFromRight = true;
+  }
+  resetContactSurfaces() {
+    this.inContactFromBelow = false;
+    this.inContactFromTop = false;
+    this.inContactFromLeft = false;
+    this.inContactFromRight = false;
+  }
 }
 
 export abstract class MovableEntity extends MutableEntity {
-  velX: number = 0;
-  velY: number = 0;
-
-  accX: number = 0;
-  accY: number = 0;
 
   public mass: number = 1;
 
+  public unstoppable: boolean = false;
+
   incrementState(): void {
-    this.posX += this.velX;
-    this.posY += this.velY;
     this.velX += this.accX;
     this.velY += this.accY;
+    this.posX += this.velX;
+    this.posY += this.velY;
   }
 }
 
@@ -115,38 +146,61 @@ export class GroupedEntityList {
       return this.otherEntities[id - this.mutableEntityCount()];
     }
   }
+
+  clear() {
+    this.movableEntities = [];
+    this.otherMutableEntities = [];
+    this.otherEntities = [];
+  }
 }
 
 // Perform elastic collision between MovableEntity entity1 and (possibly immovable) Entity entity2
 export function performCollision(entity1: MovableEntity, entity2: Entity): void {
-  if (entity2 instanceof MovableEntity) {
+  if (entity2 instanceof MovableEntity && !entity2.unstoppable) {
     [entity1.velY, entity2.velY] = newVelocitiesElastic(entity1.velY, entity2.velY, entity1.mass, entity2.mass);
     [entity1.velX, entity2.velX] = newVelocitiesElastic(entity1.velX, entity2.velX, entity1.mass, entity2.mass);
   } else {
-    if (entity1.collisionIsBottom(entity2)) {
+    if (entity1.collidingFromBottomWith(entity2)) {
       if (entity1.velY < 0) {
-        entity1.velY = 0;
+        entity1.velY = entity2.velY;
         entity1.posY = entity2.posY + entity2.height;
       }
     }
-    if (entity1.collisionIsTop(entity2)) {
+    if (entity1.collidingFromTopWith(entity2)) {
       if (entity1.velY > 0) {
-        entity1.velY = 0;
+        entity1.velY = entity2.velY;
         entity1.posY = entity2.posY - entity1.height;
       }
     }
-    if (entity1.collisionIsLeft(entity2)) {
+    if (entity1.collidingFromLeftWith(entity2)) {
       if (entity1.velX > 0) {
-        entity1.velX = 0;
+        entity1.velX = entity2.velX;
         entity1.posX = entity2.posX - entity1.width;
       }
     }
-    if (entity1.collisionIsRight(entity2)) {
+    if (entity1.collidingFromRightWith(entity2)) {
       if (entity1.velX < 0) {
-        entity1.velX = 0;
+        entity1.velX = entity2.velX;
         entity1.posX = entity2.posX + entity2.width;
       }
     }
+  }
+
+  if (entity1.collidingFromBottomWith(entity2)) {
+    entity1.hitFromTop();
+    entity2.hitFromBelow();
+  }
+  if (entity1.collidingFromTopWith(entity2)) {
+    entity1.hitFromBelow();
+    entity2.hitFromTop();
+  }
+  if (entity1.collidingFromLeftWith(entity2)) {
+    entity1.hitFromRight();
+    entity2.hitFromLeft();
+  }
+  if (entity1.collidingFromRightWith(entity2)) {
+    entity1.hitFromLeft();
+    entity2.hitFromRight();
   }
 }
 

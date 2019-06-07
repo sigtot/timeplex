@@ -1,5 +1,6 @@
 import {performCollision, GroupedEntityList} from "./engine";
 import {DRAW_BOUNDING_RECT, TICK_INTERVAL} from "./config";
+import {Level, Level1} from "./levels";
 
 export class CanvasAnimation {
   private readonly ctx: CanvasRenderingContext2D;
@@ -7,6 +8,9 @@ export class CanvasAnimation {
 
   constructor(private readonly canvas: HTMLCanvasElement) {
     this.ctx = this.canvas.getContext('2d')!!;
+
+    let level1 = new Level1();
+    this.loadLevel(level1);
 
     window.setInterval(() => this.tick(), TICK_INTERVAL);
     window.requestAnimationFrame(() => this.draw());
@@ -17,7 +21,10 @@ export class CanvasAnimation {
       this.entityList.mutableEntity(i).incrementState();
     }
 
-    // Check for and perform collisions
+    // Check for and perform collisions. This is totally an anti pattern btw
+    for (let i = 0; i < this.entityList.entityCount(); i++) {
+      this.entityList.entity(i).resetContactSurfaces();
+    }
     for (let i = 0; i < this.entityList.movableEntityCount(); i++) {
       for (let j = 1; j < this.entityList.entityCount(); j++) {
         let movableEntity = this.entityList.movableEntity(i);
@@ -47,6 +54,12 @@ export class CanvasAnimation {
   drawBg() {
     this.ctx.fillStyle = "#eeeeee";
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+
+  loadLevel(level: Level) {
+    this.entityList.clear();
+    level.entities().forEach( entity => this.entityList.addEntity(entity));
+    level.begin();
   }
 }
 
