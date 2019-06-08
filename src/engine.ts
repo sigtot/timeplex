@@ -15,6 +15,8 @@ export abstract class Entity {
   height: number = 0;
   width: number = 0;
 
+  bouncy: boolean = false;
+
   abstract draw(ctx: CanvasRenderingContext2D): void;
   boundingRect(): Rectangle {
     return new Rectangle(this.posX, this.posX + this.width, this.posY, this.posY + this.height)
@@ -162,25 +164,41 @@ export function performCollision(entity1: MovableEntity, entity2: Entity): void 
   } else {
     if (entity1.collidingFromBottomWith(entity2)) {
       if (entity1.velY < 0) {
-        entity1.velY = entity2.velY;
+        if (entity2.bouncy) {
+          entity1.velY = entity2.velY - entity1.velY;
+        } else {
+          entity1.velY = entity2.velY;
+        }
         entity1.posY = entity2.posY + entity2.height;
       }
     }
     if (entity1.collidingFromTopWith(entity2)) {
       if (entity1.velY > 0) {
-        entity1.velY = entity2.velY;
+        if (entity2.bouncy) {
+          entity1.velY = entity2.velY - entity1.velY;
+        } else {
+          entity1.velY = entity2.velY;
+        }
         entity1.posY = entity2.posY - entity1.height;
       }
     }
     if (entity1.collidingFromLeftWith(entity2)) {
       if (entity1.velX > 0) {
-        entity1.velX = entity2.velX;
+        if (entity2.bouncy) {
+          entity1.velX = entity2.velX - entity1.velX;
+        } else {
+          entity1.velX = entity2.velX;
+        }
         entity1.posX = entity2.posX - entity1.width;
       }
     }
     if (entity1.collidingFromRightWith(entity2)) {
       if (entity1.velX < 0) {
-        entity1.velX = entity2.velX;
+        if (entity2.bouncy) {
+          entity1.velX = entity2.velX - entity1.velX;
+        } else {
+          entity1.velX = entity2.velX;
+        }
         entity1.posX = entity2.posX + entity2.width;
       }
     }

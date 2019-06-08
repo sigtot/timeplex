@@ -7,6 +7,8 @@ export const TICK_INTERVAL: number = 8;
 export const MAX_RUN_SPEED = 6;
 export const RUN_ACC = 0.2;
 export const JUMP_SPEED = 10;
+export const FRICTION_ACC = 0.4;
+export const STATIONARY_VELOCITY_THRESH = 0.4;
 
 export const LEFT_KEY_CODE: string = "ArrowLeft";
 export const UP_KEY_CODE: string = "ArrowUp";

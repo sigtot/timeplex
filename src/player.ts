@@ -1,10 +1,11 @@
 import {
+  FRICTION_ACC,
   GRAVITATIONAL_CONSTANT, H_KEY_CODE, JUMP_SPEED, K_KEY_CODE, L_KEY_CODE,
   LEFT_KEY_CODE,
   MAX_RUN_SPEED,
   PLAYER_MASS,
   PLAYER_SIZE, RIGHT_KEY_CODE,
-  RUN_ACC, SPACE_KEY_CODE, UP_KEY_CODE
+  RUN_ACC, SPACE_KEY_CODE, STATIONARY_VELOCITY_THRESH, UP_KEY_CODE
 } from "./config";
 import {MovableEntity} from "./engine";
 
@@ -24,19 +25,21 @@ export class Player extends MovableEntity {
     this.mass = PLAYER_MASS;
   }
   incrementState() {
-    super.incrementState();
 
-    // It's late
     if (this.leftKeyDown && !this.rightKeyDown && -MAX_RUN_SPEED < this.velX && this.inContactFromBelow) {
         this.accX = -RUN_ACC;
     } else if (this.rightKeyDown && !this.leftKeyDown && this.velX < MAX_RUN_SPEED && this.inContactFromBelow) {
         this.accX = RUN_ACC;
     } else if (!this.leftKeyDown && !this.rightKeyDown && this.inContactFromBelow) {
-      this.velX = 0;
-      this.accX = 0;
+      if (Math.abs(this.velX) < STATIONARY_VELOCITY_THRESH) {
+        this.velX = 0;
+      } else {
+        this.accX = -1 * Math.sign(this.velX) * FRICTION_ACC;
+      }
     } else {
       this.accX = 0;
     }
+    super.incrementState();
   }
 
   draw(ctx: CanvasRenderingContext2D): void {

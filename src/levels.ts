@@ -1,5 +1,5 @@
 import {Entity} from "./engine";
-import {Box, Platform} from "./entities";
+import {Box, FloatingBouncyWall, Platform} from "./baseentities";
 import {Player} from "./player";
 
 export abstract class Level {
@@ -19,8 +19,12 @@ export class Level1 extends Level {
   entities(): Entity[] {
     let entities: Entity[] = [];
     entities.push(new Box(0, 300, 700, 500));
+    entities.push(new Box(200, 180, 300, 40));
     entities.push(this.player);
     entities.push(new Platform(800, 300, 0, -0.3, 300, 40, 200));
+    entities.push(new FloatingBouncyWall(1150, 60, 40, 200));
+    entities.push(new FloatingBouncyWall(50, 60, 40, 200));
+    entities.push(new FloatingBouncyWall(750, 500, 400, 40));
     return entities;
   }
 

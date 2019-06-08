@@ -16,7 +16,6 @@ export class Platform extends MovableEntity {
               public height: number, private moveIval: number) {
     super();
     this.unstoppable = true;
-    this.mass = 1000;
   }
   incrementState(): void {
     super.incrementState();
@@ -30,6 +29,18 @@ export class Platform extends MovableEntity {
 
   draw(ctx: CanvasRenderingContext2D): void {
     ctx.fillStyle = "#444444";
+    ctx.fillRect(this.posX, this.posY, this.width, this.height);
+  }
+}
+
+export class FloatingBouncyWall extends Entity {
+  constructor(public posX: number, public posY: number, public width: number, public height: number) {
+    super();
+    this.bouncy = true;
+  }
+
+  draw(ctx: CanvasRenderingContext2D): void {
+    ctx.fillStyle = "#44cc44";
     ctx.fillRect(this.posX, this.posY, this.width, this.height);
   }
 }
