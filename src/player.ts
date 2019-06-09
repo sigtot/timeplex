@@ -9,12 +9,13 @@ import {
 } from "./config";
 import {MovableEntity} from "./engine";
 
-class StateChange {
+class KeyFrame {
   constructor(public action: string, public tick: number) {};
 }
 
 export class Player extends MovableEntity {
-  private stateChanges: StateChange[] = [];
+  private keyFrames: KeyFrame[] = [];
+  private levelTick: number = 0;
   private leftKeyDown: boolean = false;
   private rightKeyDown: boolean = false;
   constructor(public posX: number, public posY: number) {
@@ -42,6 +43,10 @@ export class Player extends MovableEntity {
     super.incrementState();
   }
 
+  tick() {
+    this.levelTick++;
+  }
+
   draw(ctx: CanvasRenderingContext2D): void {
     ctx.fillStyle = "#333333";
     ctx.fillRect(this.posX, this.posY, this.width, this.height);
@@ -51,12 +56,16 @@ export class Player extends MovableEntity {
     document.addEventListener("keydown", this.handleKeyDown);
     document.addEventListener("keyup", this.handleKeyUp);
   }
-  ungrabKeyboard(): void {
+  releaseKeyboard(): void {
     document.removeEventListener("keydown", this.handleKeyDown);
     document.removeEventListener("keyup", this.handleKeyUp);
   }
   handleKeyDown = (event: KeyboardEvent) => {
-    switch (event.code) {
+    this.handleKeyCode(event.code);
+    this.keyFrames.push(new KeyFrame(event.code, this.levelTick));
+  };
+  handleKeyCode = (keyCode: string) => {
+    switch (keyCode) {
       case LEFT_KEY_CODE:
         this.leftKeyDown = true;
         break;

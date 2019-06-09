@@ -58,7 +58,7 @@ export class CanvasAnimation {
 
   loadLevel(level: Level) {
     this.entityList.clear();
-    level.entities().forEach( entity => this.entityList.addEntity(entity));
+    level.getEntities().forEach(entity => this.entityList.addEntity(entity));
     level.begin();
   }
 }
